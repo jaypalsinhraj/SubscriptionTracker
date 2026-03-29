@@ -1,0 +1,118 @@
+Date,Description,Merchant,Category,Amount,Currency
+2024-01-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-01-02,Office Coffee,Costa Coffee,Food,-4.50,GBP
+2024-01-03,AWS Monthly Hosting,Amazon Web Services,Software,-42.13,GBP
+2024-01-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-01-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-01-10,Electricity Bill,British Gas,Utilities,-78.21,GBP
+2024-01-12,Uber Ride,Uber,Transport,-14.90,GBP
+2024-01-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-01-20,Groceries,Tesco,Food,-63.12,GBP
+2024-01-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-01-30,Internet Bill,Virgin Media,Utilities,-41.00,GBP
+2024-02-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-02-02,Office Coffee,Costa Coffee,Food,-5.10,GBP
+2024-02-03,AWS Monthly Hosting,Amazon Web Services,Software,-41.88,GBP
+2024-02-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-02-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-02-10,Electricity Bill,British Gas,Utilities,-74.88,GBP
+2024-02-11,Taxi Ride,Uber,Transport,-11.20,GBP
+2024-02-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-02-18,Groceries,Tesco,Food,-55.80,GBP
+2024-02-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-02-28,Internet Bill,Virgin Media,Utilities,-41.00,GBP
+2024-03-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-03-03,AWS Monthly Hosting,Amazon Web Services,Software,-43.12,GBP
+2024-03-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-03-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-03-10,Electricity Bill,British Gas,Utilities,-80.44,GBP
+2024-03-12,Uber Ride,Uber,Transport,-17.90,GBP
+2024-03-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-03-20,Groceries,Tesco,Food,-68.20,GBP
+2024-03-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-03-30,Internet Bill,Virgin Media,Utilities,-41.00,GBP
+2024-04-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-04-03,AWS Monthly Hosting,Amazon Web Services,Software,-42.55,GBP
+2024-04-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-04-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-04-10,Electricity Bill,British Gas,Utilities,-73.19,GBP
+2024-04-12,Uber Ride,Uber,Transport,-13.70,GBP
+2024-04-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-04-18,Groceries,Tesco,Food,-59.44,GBP
+2024-04-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-04-30,Internet Bill,Virgin Media,Utilities,-41.00,GBP
+2024-05-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-05-03,AWS Monthly Hosting,Amazon Web Services,Software,-42.87,GBP
+2024-05-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-05-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-05-10,Electricity Bill,British Gas,Utilities,-79.40,GBP
+2024-05-12,Taxi Ride,Uber,Transport,-15.50,GBP
+2024-05-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-05-20,Groceries,Tesco,Food,-61.70,GBP
+2024-05-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-05-30,Internet Bill,Virgin Media,Utilities,-41.00,GBP
+2024-06-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-06-03,AWS Monthly Hosting,Amazon Web Services,Software,-43.40,GBP
+2024-06-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-06-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-06-10,Electricity Bill,British Gas,Utilities,-82.11,GBP
+2024-06-12,Uber Ride,Uber,Transport,-16.00,GBP
+2024-06-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-06-20,Groceries,Tesco,Food,-64.88,GBP
+2024-06-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-06-30,Internet Bill,Virgin Media,Utilities,-41.00,GBP
+2024-07-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-07-03,AWS Monthly Hosting,Amazon Web Services,Software,-42.21,GBP
+2024-07-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-07-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-07-10,Electricity Bill,British Gas,Utilities,-76.55,GBP
+2024-07-12,Taxi Ride,Uber,Transport,-14.60,GBP
+2024-07-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-07-20,Groceries,Tesco,Food,-67.40,GBP
+2024-07-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-07-30,Internet Bill,Virgin Media,Utilities,-41.00,GBP
+2024-08-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-08-03,AWS Monthly Hosting,Amazon Web Services,Software,-42.98,GBP
+2024-08-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-08-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-08-10,Electricity Bill,British Gas,Utilities,-77.90,GBP
+2024-08-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-08-20,Groceries,Tesco,Food,-62.12,GBP
+2024-08-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-08-30,Internet Bill,Virgin Media,Utilities,-41.00,GBP
+2024-09-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-09-03,AWS Monthly Hosting,Amazon Web Services,Software,-41.90,GBP
+2024-09-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-09-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-09-10,Electricity Bill,British Gas,Utilities,-79.33,GBP
+2024-09-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-09-20,Groceries,Tesco,Food,-65.70,GBP
+2024-09-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-09-30,Internet Bill,Virgin Media,Utilities,-41.00,GBP
+2024-10-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-10-03,AWS Monthly Hosting,Amazon Web Services,Software,-42.67,GBP
+2024-10-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-10-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-10-10,Electricity Bill,British Gas,Utilities,-81.44,GBP
+2024-10-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-10-20,Groceries,Tesco,Food,-63.90,GBP
+2024-10-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-10-30,Internet Bill,Virgin Media,Utilities,-41.00,GBP
+2024-11-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-11-03,AWS Monthly Hosting,Amazon Web Services,Software,-42.22,GBP
+2024-11-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-11-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-11-10,Electricity Bill,British Gas,Utilities,-75.55,GBP
+2024-11-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-11-20,Groceries,Tesco,Food,-61.22,GBP
+2024-11-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-11-30,Internet Bill,Virgin Media,Utilities,-41.00,GBP
+2024-12-01,Salary Deposit,Employer Inc,Income,3500,GBP
+2024-12-03,AWS Monthly Hosting,Amazon Web Services,Software,-42.75,GBP
+2024-12-05,Adobe Creative Cloud,Adobe,Software,-52.99,GBP
+2024-12-08,Notion Subscription,Notion Labs,Software,-8.00,GBP
+2024-12-10,Electricity Bill,British Gas,Utilities,-83.11,GBP
+2024-12-15,Spotify Subscription,Spotify,Software,-9.99,GBP
+2024-12-20,Groceries,Tesco,Food,-72.00,GBP
+2024-12-25,Netflix Subscription,Netflix,Software,-10.99,GBP
+2024-12-30,Internet Bill,Virgin Media,Utilities,-41.00,GBP

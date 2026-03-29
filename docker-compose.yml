@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: subscription_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Database=subscription_tracker;Username=postgres;Password=postgres
+      Auth__DevelopmentBypass__Enabled: "true"
+      Auth__DevelopmentBypass__ExternalUserId: dev-user
+      Globalization__DefaultCulture: en-US
+      Globalization__DefaultCurrency: USD
+      Cors__Origins__0: http://localhost:5173
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    environment:
+      ConnectionStrings__DefaultConnection: Host=postgres;Database=subscription_tracker;Username=postgres;Password=postgres
+      Worker__IntervalMinutes: 120
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

@@ -1,0 +1,54 @@
+name: Build and deploy API
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/backend/**'
+      - 'docker/api.Dockerfile'
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  IMAGE_NAME: subscription-api
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Set ACR login server
+        id: acr
+        run: echo "login_server=$(az acr list --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" --query '[0].loginServer' -o tsv)" >> $GITHUB_OUTPUT
+
+      - name: Docker login to ACR
+        run: az acr login --name "$(echo '${{ steps.acr.outputs.login_server }}' | cut -d. -f1)"
+
+      - name: Build and push image
+        run: |
+          docker build -f docker/api.Dockerfile -t "${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" .
+          docker push "${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+
+      - name: Update Container App
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            APP_NAME="${{ vars.AZURE_CONTAINER_APP_NAME }}"
+            if [ -z "$APP_NAME" ]; then
+              APP_NAME="$(az containerapp list -g "${{ vars.AZURE_RESOURCE_GROUP }}" --query '[?contains(name, `-api`)].name | [0]' -o tsv)"
+            fi
+            az containerapp update \
+              --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}" \
+              --name "$APP_NAME" \
+              --image "${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"

@@ -1,0 +1,37 @@
+# Build
+[Bb]in/
+[Oo]bj/
+[Dd]ist/
+out/
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# Node
+node_modules/
+npm-debug.log*
+.pnpm-store/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Test
+TestResults/
+coverage/
+
+# Azure / SWA
+.azure/
