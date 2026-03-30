@@ -56,6 +56,7 @@ export function AlertsPage() {
   const [includeType, setIncludeType] = useState(allTypesTrue);
   const [includeSeverity, setIncludeSeverity] = useState(allSeveritiesTrue);
   const [readFilter, setReadFilter] = useState<ReadFilter>("all");
+  const [searchText, setSearchText] = useState("");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const statusAllRef = useRef<HTMLInputElement>(null);
@@ -64,15 +65,29 @@ export function AlertsPage() {
 
   const filteredAlerts = useMemo(() => {
     if (!data?.length) return [];
+    const q = searchText.trim().toLowerCase();
     return data.filter((a) => {
       if (!includeStatus[a.alertStatus]) return false;
       if (!includeType[a.alertType]) return false;
       if (!includeSeverity[a.severity]) return false;
       if (readFilter === "unread" && a.isRead) return false;
       if (readFilter === "read" && !a.isRead) return false;
+      if (q) {
+        const haystack = [
+          a.title,
+          a.message,
+          a.notes ?? "",
+          typeLabels[a.alertType] ?? String(a.alertType),
+          statusLabels[a.alertStatus] ?? String(a.alertStatus),
+          severityLabels[a.severity] ?? String(a.severity),
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
       return true;
     });
-  }, [data, includeStatus, includeType, includeSeverity, readFilter]);
+  }, [data, includeStatus, includeType, includeSeverity, readFilter, searchText]);
 
   const statusAllSelected = [0, 1, 2, 3].every((i) => includeStatus[i]);
   const statusSomeSelected = [0, 1, 2, 3].some((i) => includeStatus[i]);
@@ -113,10 +128,12 @@ export function AlertsPage() {
     setIncludeType(allTypesTrue());
     setIncludeSeverity(allSeveritiesTrue());
     setReadFilter("all");
+    setSearchText("");
   };
 
   const filtersActive =
     readFilter !== "all" ||
+    searchText.trim().length > 0 ||
     Object.values(includeStatus).some((v) => !v) ||
     Object.values(includeType).some((v) => !v) ||
     Object.values(includeSeverity).some((v) => !v);
@@ -167,6 +184,18 @@ export function AlertsPage() {
               Showing {filteredAlerts.length} of {data.length} alert{data.length === 1 ? "" : "s"}
               {filtersActive ? " · Custom" : ""}
             </span>
+            <label className="field alert-search-field">
+              <span className="alert-search-icon" aria-hidden>
+                🔍
+              </span>
+              <input
+                type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Search alerts..."
+                aria-label="Search alerts"
+              />
+            </label>
             {filtersActive && (
               <button type="button" className="btn ghost small" onClick={resetFilters}>
                 Reset filters

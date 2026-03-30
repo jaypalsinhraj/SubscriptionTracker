@@ -246,7 +246,6 @@ public class RecurringDetectionService : IRecurringDetectionService
 
         var medianGap = gaps.OrderBy(g => g).ElementAt(gaps.Count / 2);
         var cadence = ClassifyCadence(medianGap);
-        if (cadence == Cadence.Unknown) return false;
 
         var avgAmount = amounts.Average();
         var last = ordered[^1].TransactionDate;
@@ -256,7 +255,8 @@ public class RecurringDetectionService : IRecurringDetectionService
             Cadence.Monthly => last.AddMonths(1),
             Cadence.Quarterly => last.AddMonths(3),
             Cadence.Yearly => last.AddYears(1),
-            _ => last
+            // Flexible fallback: keep recurring rows even when cadence bucket is not standard.
+            _ => last.AddDays(Math.Max(1, medianGap))
         };
 
         var confidence = Math.Min(100, 40 + ordered.Count * 15 + (gaps.All(g => SimilarGap(g, medianGap)) ? 20 : 0));

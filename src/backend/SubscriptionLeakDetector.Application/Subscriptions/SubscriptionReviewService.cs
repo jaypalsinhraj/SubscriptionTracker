@@ -39,7 +39,29 @@ public sealed class SubscriptionReviewService : ISubscriptionReviewService
         sub.OwnerUserId = request.OwnerUserId;
         sub.OwnerName = string.IsNullOrWhiteSpace(request.OwnerName) ? null : request.OwnerName.Trim();
         sub.OwnerEmail = string.IsNullOrWhiteSpace(request.OwnerEmail) ? null : request.OwnerEmail.Trim();
-        sub.UpdatedAt = _clock.UtcNow;
+        var now = _clock.UtcNow;
+        sub.UpdatedAt = now;
+
+        var hasOwner = sub.OwnerUserId != null || !string.IsNullOrWhiteSpace(sub.OwnerName) ||
+                       !string.IsNullOrWhiteSpace(sub.OwnerEmail);
+        if (hasOwner)
+        {
+            var ownerMissingAlerts = await _db.RenewalAlerts
+                .Where(a => a.AccountId == accountId &&
+                            a.SubscriptionId == subscriptionId &&
+                            a.AlertType == AlertType.OwnerMissing &&
+                            (a.AlertStatus == AlertStatus.Open || a.AlertStatus == AlertStatus.PendingConfirmation))
+                .ToListAsync(cancellationToken);
+
+            foreach (var alert in ownerMissingAlerts)
+            {
+                alert.AlertStatus = AlertStatus.Resolved;
+                alert.IsRead = true;
+                alert.RespondedAt = now;
+                alert.RespondedByUserId = actingUserId;
+                alert.Notes = "Resolved automatically after owner assignment.";
+            }
+        }
 
         await _db.SaveChangesAsync(cancellationToken);
 

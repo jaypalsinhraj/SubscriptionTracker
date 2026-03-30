@@ -46,6 +46,8 @@ export function SubscriptionsPage() {
   const [ownerPanelId, setOwnerPanelId] = useState<string | null>(null);
   const [ownerNameDraft, setOwnerNameDraft] = useState("");
   const [ownerEmailDraft, setOwnerEmailDraft] = useState("");
+  const [reviewSuccessMessage, setReviewSuccessMessage] = useState<string | null>(null);
+  const [pendingReviewId, setPendingReviewId] = useState<string | null>(null);
 
   const panelSub = ownerPanelId ? data?.find((s) => s.id === ownerPanelId) : undefined;
 
@@ -78,14 +80,24 @@ export function SubscriptionsPage() {
       .then(() => closeOwnerPanel());
   };
 
+  const requestReviewFor = (subscriptionId: string, vendorName: string) => {
+    setReviewSuccessMessage(null);
+    setPendingReviewId(subscriptionId);
+    void requestReview({ id: subscriptionId })
+      .unwrap()
+      .then(() => setReviewSuccessMessage(`Review requested for ${vendorName}.`))
+      .finally(() => setPendingReviewId(null));
+  };
+
   return (
     <div className="page">
       <h2>Subscriptions</h2>
       <p className="muted">
         Active recurring subscriptions detected from your data. By default this list shows{" "}
-        <strong>all</strong> of them (including unknown recurring and other types). Use the filter below to
-        narrow to high-confidence software and media only. Items excluded from detection (salary, utilities,
-        etc.) appear under <Link to="/recurring/review">Recurring review</Link>.
+        <strong>all</strong> active subscription rows. Enable the filter below to show only high-confidence{" "}
+        <strong>Software</strong> and <strong>Media</strong> types (confidence ≥70). Unknown recurring rows are
+        intentionally excluded in that mode. Items excluded from detection (salary, utilities, etc.) appear
+        under <Link to="/recurring/review">Recurring review</Link>.
       </p>
 
       <label className="inline-check muted">
@@ -94,7 +106,7 @@ export function SubscriptionsPage() {
           checked={likelySaaSMediaOnly}
           onChange={(e) => setLikelySaaSMediaOnly(e.target.checked)}
         />{" "}
-        Likely SaaS &amp; media only (confidence ≥70)
+        Software &amp; media only (confidence ≥70)
       </label>
       {data != null && (
         <p className="muted small" style={{ marginTop: "0.35rem" }}>
@@ -104,6 +116,7 @@ export function SubscriptionsPage() {
 
       {patchResult.isError && <div className="banner error">Could not update owner.</div>}
       {reviewResult.isError && <div className="banner error">Could not request review.</div>}
+      {reviewSuccessMessage && <div className="banner success">{reviewSuccessMessage}</div>}
 
       {isLoading && <p>Loading…</p>}
       {isError && <div className="banner error">Failed to load subscriptions.</div>}
@@ -146,7 +159,11 @@ export function SubscriptionsPage() {
                 <td>{formatCurrency(s.averageAmount, s.currency, locale)}</td>
                 <td>{cadenceLabels[s.cadence] ?? s.cadence}</td>
                 <td>
-                  <span className="pill subtle">{reviewLabels[s.reviewStatus] ?? s.reviewStatus}</span>
+                  <span className="pill subtle">
+                    {s.reviewStatus === 1 && s.lastReviewRequestedAt
+                      ? "Review requested"
+                      : reviewLabels[s.reviewStatus] ?? s.reviewStatus}
+                  </span>
                 </td>
                 <td>
                   <span className="small">
@@ -163,6 +180,26 @@ export function SubscriptionsPage() {
                 </td>
                 <td>
                   <div className="row-actions">
+                    {/** Disable only for this row when request is in-flight, manually requested already, or under review. */}
+                    {(() => {
+                      const isRequested = s.reviewStatus === 1 && !!s.lastReviewRequestedAt;
+                      const isUnderReview = s.reviewStatus === 2;
+                      const isDisabled = pendingReviewId === s.id || isRequested || isUnderReview;
+                      const buttonLabel = pendingReviewId === s.id
+                        ? "Requesting..."
+                        : isRequested
+                          ? "Review requested"
+                          : isUnderReview
+                            ? "Under review"
+                            : "Request review";
+                      const buttonTitle = isRequested
+                        ? "A review request has already been sent for this subscription."
+                        : isUnderReview
+                          ? "Review is currently in progress."
+                          : undefined;
+
+                      return (
+                        <>
                     <button
                       type="button"
                       className="btn ghost small"
@@ -173,10 +210,15 @@ export function SubscriptionsPage() {
                     <button
                       type="button"
                       className="btn primary small"
-                      onClick={() => void requestReview({ id: s.id })}
+                      disabled={isDisabled}
+                      title={buttonTitle}
+                      onClick={() => requestReviewFor(s.id, s.vendorName)}
                     >
-                      Request review
+                      {buttonLabel}
                     </button>
+                        </>
+                      );
+                    })()}
                   </div>
                 </td>
               </tr>
