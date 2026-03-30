@@ -13,35 +13,30 @@ public class SubscriptionQueryService : ISubscriptionQueryService
         _db = db;
     }
 
-    public async Task<IReadOnlyList<SubscriptionListItemDto>> ListAsync(Guid accountId, bool includeReviewBucket,
+    public async Task<IReadOnlyList<SubscriptionListItemDto>> ListAsync(Guid accountId, bool likelySaaSMediaOnly = false,
         CancellationToken cancellationToken = default)
     {
-        var q = _db.Subscriptions.AsNoTracking().Where(s => s.AccountId == accountId);
+        var query = _db.Subscriptions.AsNoTracking()
+            .Where(s => s.AccountId == accountId && s.Status == SubscriptionStatus.Active);
 
-        if (includeReviewBucket)
-            q = q.Where(s =>
-                (s.ClassificationScore >= 70 &&
-                 (s.RecurringType == RecurringType.SoftwareSubscription ||
-                  s.RecurringType == RecurringType.MediaSubscription)) ||
-                (s.ClassificationScore >= 40 && s.ClassificationScore < 70 &&
-                 (s.RecurringType == RecurringType.SoftwareSubscription ||
-                  s.RecurringType == RecurringType.MediaSubscription ||
-                  s.RecurringType == RecurringType.UnknownRecurring)));
-        else
-            q = q.Where(s =>
-                s.ClassificationScore >= 70 &&
+        if (likelySaaSMediaOnly)
+        {
+            query = query.Where(s =>
+                s.SubscriptionConfidenceScore >= 70 &&
                 (s.RecurringType == RecurringType.SoftwareSubscription ||
                  s.RecurringType == RecurringType.MediaSubscription));
+        }
 
-        return await q
+        return await query
             .OrderBy(s => s.VendorName)
             .Select(s => new SubscriptionListItemDto(
                 s.Id,
                 s.VendorName,
                 s.NormalizedMerchant,
                 s.RecurringType,
-                s.ClassificationScore,
+                s.SubscriptionConfidenceScore,
                 s.ClassificationReason,
+                s.IsSubscriptionCandidate,
                 s.AverageAmount,
                 s.Currency,
                 s.Cadence,

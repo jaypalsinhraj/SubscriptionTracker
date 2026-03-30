@@ -26,10 +26,10 @@ public sealed class SubscriptionsController : ControllerBase
 
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<SubscriptionListItemDto>>> List(
-        [FromQuery] bool includeReview = false,
+        [FromQuery] bool likelySaaSMediaOnly = false,
         CancellationToken cancellationToken = default)
     {
-        var items = await _subscriptions.ListAsync(_users.AccountId!.Value, includeReview, cancellationToken);
+        var items = await _subscriptions.ListAsync(_users.AccountId!.Value, likelySaaSMediaOnly, cancellationToken);
         return Ok(items);
     }
 

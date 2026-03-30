@@ -2,7 +2,10 @@ namespace SubscriptionLeakDetector.Application.Subscriptions;
 
 public interface ISubscriptionQueryService
 {
-    /// <param name="includeReviewBucket">When true, include 40–69 score review candidates (software/media/unknown).</param>
-    Task<IReadOnlyList<SubscriptionListItemDto>> ListAsync(Guid accountId, bool includeReviewBucket = false,
+    /// <param name="likelySaaSMediaOnly">
+    /// When true, returns only software + media types with confidence ≥70 (legacy dashboard-style filter).
+    /// When false, returns all active subscriptions (full list).
+    /// </param>
+    Task<IReadOnlyList<SubscriptionListItemDto>> ListAsync(Guid accountId, bool likelySaaSMediaOnly = false,
         CancellationToken cancellationToken = default);
 }

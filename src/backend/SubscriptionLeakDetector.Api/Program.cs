@@ -18,6 +18,7 @@ builder.Host.UseSerilog((ctx, cfg) =>
 builder.Services.Configure<GlobalizationOptions>(builder.Configuration.GetSection(GlobalizationOptions.SectionName));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, HttpContextCurrentUserService>();
+builder.Services.AddSingleton<IAccountImportGate, AccountImportGate>();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);

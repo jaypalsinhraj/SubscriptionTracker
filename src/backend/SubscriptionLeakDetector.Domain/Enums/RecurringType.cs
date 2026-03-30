@@ -14,5 +14,7 @@ public enum RecurringType
     Insurance = 6,
     LoanPayment = 7,
     Rent = 8,
-    OtherRecurringExpense = 9
+    OtherRecurringExpense = 9,
+    Telecom = 10,
+    RecurringIncome = 11
 }

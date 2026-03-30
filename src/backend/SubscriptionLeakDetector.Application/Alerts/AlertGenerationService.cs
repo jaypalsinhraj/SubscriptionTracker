@@ -36,7 +36,7 @@ public class AlertGenerationService : IAlertGenerationService
             .ToListAsync(cancellationToken);
 
         var subs = allSubs
-            .Where(s => RecurringClassifier.IsEligibleForSubscriptionAlerts(s.RecurringType, s.ClassificationScore))
+            .Where(s => RecurringClassifier.IsEligibleForSubscriptionAlerts(s.RecurringType, s.SubscriptionConfidenceScore))
             .ToList();
 
         var activeBlocks = await _db.RenewalAlerts.AsNoTracking()
@@ -64,7 +64,9 @@ public class AlertGenerationService : IAlertGenerationService
                 .AsNoTracking()
                 .Where(t => t.AccountId == accountId &&
                             !t.IsCredit &&
-                            t.VendorName.ToLower() == s.VendorName.ToLower())
+                            (t.NormalizedMerchant != null && t.NormalizedMerchant == s.NormalizedMerchant ||
+                             t.NormalizedMerchant == null &&
+                             t.VendorName.ToLower() == s.VendorName.ToLower()))
                 .OrderByDescending(t => t.TransactionDate)
                 .Select(t => t.TransactionDate)
                 .FirstOrDefaultAsync(cancellationToken);
@@ -113,11 +115,11 @@ public class AlertGenerationService : IAlertGenerationService
         }
 
         var dupCandidates = allSubs
-            .Where(s => RecurringClassifier.IncludedInDuplicateDetection(s.RecurringType, s.ClassificationScore))
+            .Where(s => RecurringClassifier.IncludedInDuplicateDetection(s.RecurringType, s.SubscriptionConfidenceScore))
             .ToList();
 
         var normalized = dupCandidates
-            .GroupBy(x => Normalize(x.VendorName))
+            .GroupBy(x => string.IsNullOrWhiteSpace(x.NormalizedMerchant) ? Normalize(x.VendorName) : x.NormalizedMerchant)
             .Where(g => g.Count() > 1)
             .ToList();
 

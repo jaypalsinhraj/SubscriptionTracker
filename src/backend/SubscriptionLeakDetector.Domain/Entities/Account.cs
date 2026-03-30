@@ -16,6 +16,7 @@ public class Account
     public ICollection<TransactionImport> TransactionImports { get; set; } = new List<TransactionImport>();
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+    public ICollection<RecurringCandidate> RecurringCandidates { get; set; } = new List<RecurringCandidate>();
     public ICollection<RenewalAlert> RenewalAlerts { get; set; } = new List<RenewalAlert>();
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 }

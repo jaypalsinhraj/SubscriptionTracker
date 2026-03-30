@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SubscriptionLeakDetector.Application.Classification;
 using SubscriptionLeakDetector.Application.Common.Interfaces;
 using SubscriptionLeakDetector.Domain.Enums;
 
@@ -23,7 +24,7 @@ public class DashboardService : IDashboardService
 
         var likelySubs = subs
             .Where(s =>
-                s.ClassificationScore >= 70 &&
+                s.SubscriptionConfidenceScore >= 70 &&
                 (s.RecurringType == RecurringType.SoftwareSubscription ||
                  s.RecurringType == RecurringType.MediaSubscription))
             .ToList();
@@ -42,7 +43,9 @@ public class DashboardService : IDashboardService
             .CountAsync(a => a.AccountId == accountId && a.AlertStatus == AlertStatus.PendingConfirmation,
                 cancellationToken);
 
-        var duplicateSpend = await EstimateDuplicateSpendAsync(accountId, likelySubs, cancellationToken);
+        // Derive exposure from current subscriptions using the same grouping rules as duplicate-tool alerts.
+        // Do not rely on renewal_alerts rows: SubscriptionId is set null when subscriptions are recreated (FK SetNull).
+        var duplicateSpend = EstimateDuplicateMonthlySpend(subs);
 
         return new DashboardSummaryDto(
             Math.Round(monthlyEstimate, 2),
@@ -58,24 +61,38 @@ public class DashboardService : IDashboardService
         {
             Cadence.Weekly => s.AverageAmount * 52 / 12m,
             Cadence.Monthly => s.AverageAmount,
+            Cadence.Quarterly => s.AverageAmount / 3m,
             Cadence.Yearly => s.AverageAmount / 12m,
             _ => s.AverageAmount
         };
     }
 
-    private async Task<decimal> EstimateDuplicateSpendAsync(Guid accountId,
-        IReadOnlyCollection<Domain.Entities.Subscription> subs,
-        CancellationToken cancellationToken)
+    /// <summary>
+    /// Estimated monthly spend for subscriptions that share a normalized merchant key with at least one other
+    /// eligible row (same grouping as duplicate-tool alert generation).
+    /// </summary>
+    private static decimal EstimateDuplicateMonthlySpend(IReadOnlyCollection<Domain.Entities.Subscription> activeSubscriptions)
     {
-        var duplicateAlerts = await _db.RenewalAlerts
-            .AsNoTracking()
-            .Where(a => a.AccountId == accountId && a.AlertType == AlertType.DuplicateTool)
-            .Select(a => a.SubscriptionId)
-            .ToListAsync(cancellationToken);
+        var dupCandidates = activeSubscriptions
+            .Where(s => RecurringClassifier.IncludedInDuplicateDetection(s.RecurringType, s.SubscriptionConfidenceScore))
+            .ToList();
 
-        if (duplicateAlerts.Count == 0) return 0;
+        var groups = dupCandidates
+            .GroupBy(x => string.IsNullOrWhiteSpace(x.NormalizedMerchant)
+                ? NormalizeMerchantKey(x.VendorName)
+                : x.NormalizedMerchant)
+            .Where(g => g.Count() > 1);
 
-        var set = duplicateAlerts.Where(id => id.HasValue).Select(id => id!.Value).ToHashSet();
-        return subs.Where(s => set.Contains(s.Id)).Sum(NormalizeToMonthly);
+        decimal total = 0;
+        foreach (var g in groups)
+        {
+            foreach (var s in g)
+                total += NormalizeToMonthly(s);
+        }
+
+        return total;
     }
+
+    private static string NormalizeMerchantKey(string name) =>
+        string.Join(' ', name.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries));
 }

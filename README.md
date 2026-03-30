@@ -99,7 +99,7 @@ dotnet run --project SubscriptionLeakDetector.Api
 - Health: `GET http://localhost:8080/health`.
 - Development auth bypass: enabled in `SubscriptionLeakDetector.Api/appsettings.Development.json` (`Auth:DevelopmentBypass:Enabled`). The seeded user uses `ExternalId = dev-user`.
 
-**Globalization:** `Globalization:DefaultCulture` (BCP 47, e.g. `en-GB`) and `Globalization:DefaultCurrency` (ISO 4217, e.g. `GBP`) are stored on the **account**, returned from `GET /api/me`, and used for `Intl` currency formatting in the web app. New dev seeds read these from `appsettings.Development.json`. CSV imports without a `Currency` column use the account default.
+**Globalization:** `Globalization:DefaultCulture` (BCP 47, e.g. `en-GB`) and `Globalization:DefaultCurrency` (ISO 4217, e.g. `GBP`) are stored on the **account**, returned from `GET /api/me`, and used for `Intl` currency formatting in the web app. In **Development**, the seeded dev account’s culture/currency are **re-synced from appsettings on each API startup**, so changing `appsettings.Development.json` updates the dashboard after a restart. CSV imports without a `Currency` column use the account default.
 
 ### 3. Web
 
@@ -117,6 +117,20 @@ Vite proxies `/api` and `/health` to `http://localhost:8080` (see `vite.config.t
 cd src/backend
 dotnet run --project SubscriptionLeakDetector.Worker
 ```
+
+### Recurring detection pipeline
+
+Bank exports are treated as **messy** (single “vendor” column is often the full description). The pipeline is:
+
+1. **Import** — Raw text is stored on `Transaction` (`RawDescription` / `VendorName`). **Merchant normalization** (alias rules + heuristics) fills `NormalizedMerchant`, `NormalizationConfidence`, `NormalizationReason`, and `MatchedNormalizationRule`.
+2. **Pattern detection** — **Debits only** (UK-style CSV: positive amounts = credits). Transactions group by normalized merchant key, then weekly / monthly / quarterly / yearly cadences are inferred with amount tolerance.
+3. **Classification** — Keywords, cadence, and alias hints yield `RecurringType` and a **subscription confidence score** (0–100). Thresholds: **≥70** likely subscription, **40–69** review, **&lt;40** not listed as a subscription.
+4. **Persistence** — Only **likely software/media subscriptions** (score ≥70) become `Subscription` rows. Borderline subscription-like patterns and **non-subscription recurring** types (utilities, rent, payroll, transfers, telecom, etc.) are stored as `RecurringCandidate` (review queue / informational).
+5. **Review API** — `GET /api/recurring/review` (optional `?includeNonSubscription=true`), `POST /api/recurring/candidates/{id}/classify` with `{ "action": "confirmSubscription" | "dismiss" }` to promote or drop a candidate.
+
+**Subscriptions UI:** `GET /api/subscriptions` returns **likely subscriptions only**. Use **Recurring review** in the web app for the review queue.
+
+Apply the latest EF migration after pulling (includes `DetectionPipelineV2`: renames `ClassificationScore` → `SubscriptionConfidenceScore`, transaction normalization columns, `recurring_candidates` table).
 
 ### Owner confirmation workflow (MVP)
 

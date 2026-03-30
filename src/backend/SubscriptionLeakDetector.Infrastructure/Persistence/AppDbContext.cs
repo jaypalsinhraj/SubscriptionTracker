@@ -16,6 +16,7 @@ public class AppDbContext : DbContext, IApplicationDbContext
     public DbSet<TransactionImport> TransactionImports => Set<TransactionImport>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<Subscription> Subscriptions => Set<Subscription>();
+    public DbSet<RecurringCandidate> RecurringCandidates => Set<RecurringCandidate>();
     public DbSet<RenewalAlert> RenewalAlerts => Set<RenewalAlert>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 

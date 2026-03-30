@@ -14,6 +14,7 @@ public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
         b.Property(x => x.VendorName).HasMaxLength(500).IsRequired();
         b.Property(x => x.NormalizedMerchant).HasMaxLength(500).IsRequired();
         b.Property(x => x.ClassificationReason).HasMaxLength(500).IsRequired();
+        b.Property(x => x.IsSubscriptionCandidate).HasDefaultValue(true);
         b.Property(x => x.AverageAmount).HasPrecision(18, 2);
         b.Property(x => x.Currency).HasMaxLength(3).IsRequired();
         b.Property(x => x.OwnerName).HasMaxLength(200);

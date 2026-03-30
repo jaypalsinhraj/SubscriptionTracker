@@ -1,18 +1,28 @@
 import { useState } from "react";
-import { useGetMeQuery, useImportTransactionsMutation } from "@/store/api";
+import { Link } from "react-router-dom";
+import { useGetMeQuery, useResetAccountDataMutation } from "@/store/api";
 
 export function SettingsPage() {
   const me = useGetMeQuery();
-  const [fileName, setFileName] = useState("import.csv");
-  const [csv, setCsv] = useState(
-    "Date,Amount,Vendor\n2024-01-05,12.99,Adobe Creative Cloud\n2024-02-05,12.99,Adobe Creative Cloud\n2024-03-05,12.99,Adobe Creative Cloud"
-  );
-  const [importCsv, result] = useImportTransactionsMutation();
+  const [resetData, resetResult] = useResetAccountDataMutation();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const runReset = () => {
+    setConfirmOpen(false);
+    void resetData().unwrap();
+  };
 
   return (
     <div className="page">
       <h2>Settings</h2>
-      <p className="muted">Import CSV transaction extracts to power detection.</p>
+      <p className="muted">Account preferences and import shortcuts.</p>
+
+      {resetResult.isSuccess && (
+        <div className="banner success">All account data has been removed. You can import transactions again.</div>
+      )}
+      {resetResult.isError && (
+        <div className="banner error">Could not reset data. Check the API and try again.</div>
+      )}
 
       <div className="card flat">
         <div className="card-label">Region &amp; currency</div>
@@ -29,27 +39,64 @@ export function SettingsPage() {
       </div>
 
       <div className="card flat">
-        <div className="card-label">CSV import</div>
+        <div className="card-label">Transactions</div>
         <p className="small muted">
-          Required columns: <strong>Date</strong>, <strong>Amount</strong>, and <strong>Vendor</strong> (or Description /
-          Merchant).
+          Import CSV, Excel, or PDF bank exports (or paste CSV) on the dedicated import page. Required columns:{" "}
+          <strong>Date</strong>, <strong>Amount</strong>, and <strong>Vendor</strong> (or Description / Merchant).
         </p>
-        <label className="field">
-          <span>File name</span>
-          <input value={fileName} onChange={(e) => setFileName(e.target.value)} />
-        </label>
-        <label className="field">
-          <span>CSV content</span>
-          <textarea rows={8} value={csv} onChange={(e) => setCsv(e.target.value)} />
-        </label>
-        <button type="button" className="btn primary" onClick={() => importCsv({ fileName, csvContent: csv })}>
-          Upload &amp; analyze
-        </button>
-        {result.isSuccess && (
-          <p className="small success">Import {result.data.importId} completed. Detection ran on the server.</p>
-        )}
-        {result.isError && <p className="small error">Import failed. Check API logs.</p>}
+        <Link to="/import" className="btn primary">
+          Open import
+        </Link>
       </div>
+
+      <div className="card flat settings-danger">
+        <div className="card-label">Danger zone</div>
+        <p className="small muted">
+          Permanently delete all imported transactions, subscriptions, recurring review rows, alerts, audit log entries,
+          and bank connection records for <strong>this account</strong>. Your account, sign-in, and users are kept.
+        </p>
+        <button
+          type="button"
+          className="btn danger"
+          disabled={resetResult.isLoading}
+          onClick={() => setConfirmOpen(true)}
+        >
+          {resetResult.isLoading ? "Deleting…" : "Delete all data"}
+        </button>
+      </div>
+
+      {confirmOpen && (
+        <>
+          <div className="drawer-backdrop" role="presentation" onClick={() => setConfirmOpen(false)} />
+          <div className="drawer settings-reset-dialog" role="dialog" aria-modal="true" aria-labelledby="reset-title">
+            <div className="drawer-header">
+              <h3 id="reset-title" className="drawer-title">
+                Delete all data?
+              </h3>
+              <button type="button" className="btn ghost small drawer-close" onClick={() => setConfirmOpen(false)}>
+                Close
+              </button>
+            </div>
+            <div className="drawer-body">
+              <p className="drawer-alert-preview">This cannot be undone.</p>
+              <p className="muted small drawer-alert-msg">
+                All transactions, imports, subscriptions, recurring candidates, alerts, audit logs, and bank
+                connections for this account will be removed.
+              </p>
+            </div>
+            <div className="drawer-footer">
+              <div className="drawer-actions">
+                <button type="button" className="btn danger small" onClick={runReset}>
+                  Yes, delete everything
+                </button>
+              </div>
+              <button type="button" className="btn ghost small drawer-cancel" onClick={() => setConfirmOpen(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

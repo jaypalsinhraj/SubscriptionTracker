@@ -12,7 +12,7 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Me", "Dashboard", "Subscriptions", "Alerts"],
+  tagTypes: ["Me", "Dashboard", "Subscriptions", "Alerts", "Recurring"],
   endpoints: (build) => ({
     getMe: build.query<
       {
@@ -46,8 +46,9 @@ export const api = createApi({
         vendorName: string;
         normalizedMerchant: string;
         recurringType: number;
-        classificationScore: number;
+        subscriptionConfidenceScore: number;
         classificationReason: string;
+        isSubscriptionCandidate: boolean;
         averageAmount: number;
         currency: string;
         cadence: number;
@@ -64,14 +65,41 @@ export const api = createApi({
         nextReviewDate: string | null;
         usageConfidenceScore: number | null;
       }>,
-      { includeReview?: boolean } | void
+      boolean | void
+    >({
+      query: (likelySaaSMediaOnly) =>
+        likelySaaSMediaOnly === true
+          ? "/api/subscriptions?likelySaaSMediaOnly=true"
+          : "/api/subscriptions",
+      providesTags: ["Subscriptions"],
+    }),
+    getRecurringReview: build.query<
+      Array<{
+        id: string;
+        vendorName: string;
+        normalizedMerchant: string;
+        recurringType: number;
+        subscriptionConfidenceScore: number;
+        classificationReason: string;
+        patternConfidenceScore: number;
+        cadence: number;
+        averageAmount: number;
+        currency: string;
+        lastChargeDate: string;
+        nextExpectedChargeDate: string;
+        status: number;
+        uiLabel: string;
+      }>,
+      { includeNonSubscription?: boolean } | void
     >({
       query: (arg) => {
-        const includeReview = arg && typeof arg === "object" && arg.includeReview === true;
-        const q = includeReview ? "?includeReview=true" : "";
-        return `/api/subscriptions${q}`;
+        const inc =
+          arg && typeof arg === "object" && arg.includeNonSubscription === true
+            ? "?includeNonSubscription=true"
+            : "";
+        return `/api/recurring/review${inc}`;
       },
-      providesTags: ["Subscriptions"],
+      providesTags: ["Recurring"],
     }),
     getAlerts: build.query<
       Array<{
@@ -103,7 +131,7 @@ export const api = createApi({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Dashboard", "Subscriptions", "Alerts"],
+      invalidatesTags: ["Dashboard", "Subscriptions", "Alerts", "Recurring"],
     }),
     patchSubscriptionOwner: build.mutation<
       unknown,
@@ -123,6 +151,17 @@ export const api = createApi({
       }),
       invalidatesTags: ["Subscriptions", "Alerts", "Dashboard"],
     }),
+    classifyRecurringCandidate: build.mutation<
+      void,
+      { id: string; action: "confirmSubscription" | "dismiss"; recurringType?: number }
+    >({
+      query: ({ id, action, recurringType }) => ({
+        url: `/api/recurring/candidates/${id}/classify`,
+        method: "POST",
+        body: { action, recurringType: recurringType ?? null },
+      }),
+      invalidatesTags: ["Recurring", "Subscriptions", "Dashboard", "Alerts"],
+    }),
     respondToAlert: build.mutation<
       {
         alertId: string;
@@ -140,6 +179,14 @@ export const api = createApi({
       }),
       invalidatesTags: ["Alerts", "Subscriptions", "Dashboard"],
     }),
+    resetAccountData: build.mutation<void, void>({
+      query: () => ({
+        url: "/api/account/reset-data",
+        method: "POST",
+        body: { confirm: true },
+      }),
+      invalidatesTags: ["Me", "Dashboard", "Subscriptions", "Alerts", "Recurring"],
+    }),
   }),
 });
 
@@ -147,9 +194,12 @@ export const {
   useGetMeQuery,
   useGetDashboardSummaryQuery,
   useGetSubscriptionsQuery,
+  useGetRecurringReviewQuery,
   useGetAlertsQuery,
   useImportTransactionsMutation,
   usePatchSubscriptionOwnerMutation,
   useRequestSubscriptionReviewMutation,
+  useClassifyRecurringCandidateMutation,
   useRespondToAlertMutation,
+  useResetAccountDataMutation,
 } = api;

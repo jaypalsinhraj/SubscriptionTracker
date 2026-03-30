@@ -10,7 +10,11 @@ public class TransactionConfiguration : IEntityTypeConfiguration<Transaction>
     {
         b.ToTable("transactions");
         b.HasKey(x => x.Id);
+        b.Property(x => x.RawDescription).HasMaxLength(2000);
         b.Property(x => x.VendorName).HasMaxLength(500).IsRequired();
+        b.Property(x => x.NormalizedMerchant).HasMaxLength(500);
+        b.Property(x => x.NormalizationReason).HasMaxLength(500);
+        b.Property(x => x.MatchedNormalizationRule).HasMaxLength(200);
         b.Property(x => x.IsCredit).HasDefaultValue(false);
         b.Property(x => x.Amount).HasPrecision(18, 2);
         b.Property(x => x.Currency).HasMaxLength(3).IsRequired();

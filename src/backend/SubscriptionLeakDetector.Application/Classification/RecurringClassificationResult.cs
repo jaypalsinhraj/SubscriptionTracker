@@ -4,5 +4,5 @@ namespace SubscriptionLeakDetector.Application.Classification;
 
 public readonly record struct RecurringClassificationResult(
     RecurringType Type,
-    int ClassificationScore,
+    int SubscriptionConfidenceScore,
     string Reason);

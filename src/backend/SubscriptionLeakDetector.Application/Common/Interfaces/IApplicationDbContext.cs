@@ -11,6 +11,7 @@ public interface IApplicationDbContext
     DbSet<TransactionImport> TransactionImports { get; }
     DbSet<Transaction> Transactions { get; }
     DbSet<Subscription> Subscriptions { get; }
+    DbSet<RecurringCandidate> RecurringCandidates { get; }
     DbSet<RenewalAlert> RenewalAlerts { get; }
     DbSet<AuditLog> AuditLogs { get; }
 

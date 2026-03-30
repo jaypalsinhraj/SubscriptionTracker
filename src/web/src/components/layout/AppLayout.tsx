@@ -2,7 +2,9 @@ import { NavLink, Outlet } from "react-router-dom";
 
 const nav = [
   { to: "/dashboard", label: "Dashboard" },
+  { to: "/import", label: "Import" },
   { to: "/subscriptions", label: "Subscriptions" },
+  { to: "/recurring/review", label: "Recurring review" },
   { to: "/alerts", label: "Alerts" },
   { to: "/settings", label: "Settings" },
 ];

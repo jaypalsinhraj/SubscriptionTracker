@@ -46,6 +46,10 @@ export function DashboardPage() {
               ? formatCurrency(summary.data.potentialDuplicateSpend, acctCurrency, locale)
               : "—"}
           </div>
+          <p className="muted small" style={{ marginTop: "0.5rem", marginBottom: 0 }}>
+            Only when two or more active subscriptions share the same normalized vendor (e.g. overlapping
+            Slack or Zoom). One charge per vendor stays at zero.
+          </p>
         </div>
       </div>
 

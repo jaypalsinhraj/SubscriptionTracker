@@ -133,6 +133,79 @@ namespace SubscriptionLeakDetector.Infrastructure.Persistence.Migrations
                     b.ToTable("bank_connections", (string)null);
                 });
 
+            modelBuilder.Entity("SubscriptionLeakDetector.Domain.Entities.RecurringCandidate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AccountId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("AverageAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<int>("Cadence")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ClassificationReason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<string>("GroupKey")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("character varying(600)");
+
+                    b.Property<DateOnly>("LastChargeDate")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("NextExpectedChargeDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("NormalizedMerchant")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("PatternConfidenceScore")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("RecurringType")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SubscriptionConfidenceScore")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("VendorName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId", "GroupKey")
+                        .IsUnique();
+
+                    b.ToTable("recurring_candidates", (string)null);
+                });
+
             modelBuilder.Entity("SubscriptionLeakDetector.Domain.Entities.RenewalAlert", b =>
                 {
                     b.Property<Guid>("Id")
@@ -213,9 +286,6 @@ namespace SubscriptionLeakDetector.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<int>("ClassificationScore")
-                        .HasColumnType("integer");
-
                     b.Property<int>("ConfidenceScore")
                         .HasColumnType("integer");
 
@@ -226,6 +296,11 @@ namespace SubscriptionLeakDetector.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(3)
                         .HasColumnType("character varying(3)");
+
+                    b.Property<bool>("IsSubscriptionCandidate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
 
                     b.Property<DateOnly>("LastChargeDate")
                         .HasColumnType("date");
@@ -265,6 +340,9 @@ namespace SubscriptionLeakDetector.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer");
 
                     b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SubscriptionConfidenceScore")
                         .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
@@ -317,9 +395,28 @@ namespace SubscriptionLeakDetector.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
+                    b.Property<string>("MatchedNormalizationRule")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<int>("NormalizationConfidence")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("NormalizationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("NormalizedMerchant")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("RawCategory")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<string>("RawDescription")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<DateOnly>("TransactionDate")
                         .HasColumnType("date");
@@ -445,6 +542,17 @@ namespace SubscriptionLeakDetector.Infrastructure.Persistence.Migrations
                     b.Navigation("Account");
                 });
 
+            modelBuilder.Entity("SubscriptionLeakDetector.Domain.Entities.RecurringCandidate", b =>
+                {
+                    b.HasOne("SubscriptionLeakDetector.Domain.Entities.Account", "Account")
+                        .WithMany("RecurringCandidates")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
             modelBuilder.Entity("SubscriptionLeakDetector.Domain.Entities.RenewalAlert", b =>
                 {
                     b.HasOne("SubscriptionLeakDetector.Domain.Entities.Account", "Account")
@@ -524,6 +632,8 @@ namespace SubscriptionLeakDetector.Infrastructure.Persistence.Migrations
                     b.Navigation("AuditLogs");
 
                     b.Navigation("BankConnections");
+
+                    b.Navigation("RecurringCandidates");
 
                     b.Navigation("RenewalAlerts");
 

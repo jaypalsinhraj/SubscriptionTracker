@@ -20,8 +20,11 @@ public class Subscription
     /// <summary>Recurring pattern strength from cadence/amount consistency (detection step).</summary>
     public int ConfidenceScore { get; set; }
 
-    /// <summary>How likely this is a software/media subscription (classification step, 0–100).</summary>
-    public int ClassificationScore { get; set; }
+    /// <summary>Subscription likelihood score from classification (0–100).</summary>
+    public int SubscriptionConfidenceScore { get; set; }
+
+    /// <summary>True when this row is a promoted likely subscription (always true for persisted subscriptions).</summary>
+    public bool IsSubscriptionCandidate { get; set; } = true;
 
     public RecurringType RecurringType { get; set; }
 
